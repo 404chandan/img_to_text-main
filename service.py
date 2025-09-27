@@ -7,7 +7,7 @@ import io
 import re
 
 # Path to Tesseract OCR binary on Linux (Render uses Ubuntu)
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = "tesseract"
 
 app = FastAPI(title="Medical Report OCR Extractor")
 

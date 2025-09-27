@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install Tesseract OCR on Linux (Render)
+# Install Tesseract OCR on Linux
 apt-get update
 apt-get install -y tesseract-ocr
 
