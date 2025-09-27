@@ -1,4 +1,4 @@
-# service_extract.py
+# service.py
 from fastapi import FastAPI, File, UploadFile, Form
 from typing import Optional
 import pytesseract
@@ -6,21 +6,21 @@ from PIL import Image
 import io
 import re
 
-# Path to Tesseract OCR binary (update if installed elsewhere)
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Path to Tesseract OCR binary on Linux (Render uses Ubuntu)
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 app = FastAPI(title="Medical Report OCR Extractor")
 
 # ---------- Helper Functions ----------
 
-# OCR from image
 def ocr_from_image_bytes(image_bytes: bytes) -> str:
+    """Extract text from image bytes using Tesseract OCR"""
     img = Image.open(io.BytesIO(image_bytes))
     text = pytesseract.image_to_string(img)
     return text
 
-# Clean up text (fix common OCR mistakes)
 def clean_text(text: str) -> str:
+    """Clean common OCR mistakes in medical reports"""
     replacements = {
         "Hemglobin": "Hemoglobin",
         "Hgh": "High",
@@ -36,7 +36,10 @@ def clean_text(text: str) -> str:
 # ---------- API Endpoint ----------
 
 @app.post("/extract")
-async def extract_text(text_input: Optional[str] = Form(None), file: Optional[UploadFile] = File(None)):
+async def extract_text(
+    text_input: Optional[str] = Form(None),
+    file: Optional[UploadFile] = File(None)
+):
     raw_text = ""
     confidence = 0.8  # default guess for OCR confidence
 
@@ -52,9 +55,13 @@ async def extract_text(text_input: Optional[str] = Form(None), file: Optional[Up
 
     cleaned = clean_text(raw_text)
 
-    # Output only Step 1 result
     return {
         "tests_raw": [ln.strip() for ln in cleaned.splitlines() if ln.strip()],
         "confidence": round(confidence, 2),
         "status": "ok"
     }
+
+# ---------- Run with Uvicorn ----------
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
