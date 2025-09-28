@@ -1,0 +1,8 @@
+# render.yaml
+services:
+  - type: web
+    name: medical-report-ocr
+    env: docker
+    plan: free         # change to 'starter'/'standard' if you need more resources
+    healthCheckPath: /health
+    autoDeploy: true
